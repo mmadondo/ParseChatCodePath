@@ -26,8 +26,7 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         chatMessage["text"] = chatMessageTextField.text ?? ""
         chatMessage["user"] = PFUser.current()
         
-        if(chatMessageTextField.text!.isEmpty){
-            chatMessage.saveInBackground { (success, error) in
+        chatMessage.saveInBackground { (success, error) in
                 if success {
                     print("The message was saved!")
                     self.chatMessageTextField.text = ""
@@ -35,13 +34,6 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     print("Problem saving message: \(error.localizedDescription)")
                 }
             }
-        }else{
-            alertController = UIAlertController(title: "Message field empty", message: "Please enter a message to send", preferredStyle: .alert)
-            let OKAction = UIAlertAction(title: "OK", style: .cancel) {(action) in }
-            alertController.addAction(OKAction)
-        }
-
-        
     }
     
     
@@ -65,9 +57,9 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         chatTableView.dataSource = self;
         
         // Auto size row height based on cell autolayout constraints
-       chatTableView.rowHeight = UITableViewAutomaticDimension
+      // chatTableView.rowHeight = UITableViewAutomaticDimension
         // Provide an estimated row height. Used for calculating scroll indicator
-       chatTableView.estimatedRowHeight = 50
+       //chatTableView.estimatedRowHeight = 50
 
         Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.refresh), userInfo: nil, repeats: true) // a refresh function that is run every second.
     }
@@ -107,7 +99,6 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         query.includeKey("user")
         
         // fetch data asynchronously
-        
         query.findObjectsInBackground{ (messages: [PFObject]?, error: Error?) -> Void in
             if let messages = messages {
                 self.messages = messages

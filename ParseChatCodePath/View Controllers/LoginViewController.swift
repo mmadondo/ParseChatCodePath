@@ -16,6 +16,7 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var passwordText: UITextField!
     
     let credentialsAlertController = UIAlertController(title: "Invalid Input", message: "Please enter username AND password", preferredStyle: .alert)
+    
      let loginErrorAlertController = UIAlertController(title: "Login error", message: "There was problem during login.", preferredStyle: .alert)
 
     override func viewDidLoad() {
@@ -57,7 +58,7 @@ class LoginViewController: UIViewController {
             // call sign up function on the object to sign up the user asynchronously and avoid duplicates
             newUser.signUpInBackground { (success: Bool, error: Error?) in
                 if let error = error {
-                      self.present(self.credentialsAlertController, animated: true)
+                      self.present(self.loginErrorAlertController, animated: true)
                     print(error.localizedDescription)
                 } else {
                     print("User Registered successfully")
@@ -94,15 +95,7 @@ class LoginViewController: UIViewController {
         }
         
     }
-    /*
-        override func viewWillAppear(_ animated: Bool) {
-        // check if user is logged in.
-        if PFUser.current() != nil {
-            // if there is a logged in user then load the home view controller
-            print("Already Logged In!")
-            self.performSegue(withIdentifier: "loginSegue", sender: nil)
-        }
-    } */
+    
 
     /*
     // MARK: - Navigation
