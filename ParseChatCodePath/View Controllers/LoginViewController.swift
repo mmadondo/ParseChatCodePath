@@ -10,12 +10,35 @@ import UIKit
 import Parse
 
 class LoginViewController: UIViewController {
+    
 
     @IBOutlet weak var usernameText: UITextField!
     @IBOutlet weak var passwordText: UITextField!
     
     let credentialsAlertController = UIAlertController(title: "Invalid Input", message: "Please enter username AND password", preferredStyle: .alert)
      let loginErrorAlertController = UIAlertController(title: "Login error", message: "There was problem during login.", preferredStyle: .alert)
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        usernameText.placeholder = "Username"
+        passwordText.placeholder = "Password"
+        // Do any additional setup after loading the view.
+        
+        // create an OK action
+        let OKAction = UIAlertAction(title: "OK", style: .default) { (action) in
+            
+        }
+        
+        // add the OK action to the alert controller
+        loginErrorAlertController.addAction(OKAction)
+        
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
     
     //Sign Up new user
     @IBAction func onSignUp(_ sender: Any) {
@@ -25,8 +48,6 @@ class LoginViewController: UIViewController {
         
         // set user properties
         newUser.username = usernameText.text
-        
-        //newUser.email = emailLabel.text
         newUser.password = passwordText.text
         
         if usernameText.text!.isEmpty || passwordText.text!.isEmpty{
@@ -41,6 +62,7 @@ class LoginViewController: UIViewController {
                 } else {
                     print("User Registered successfully")
                     // manually segue to logged in view
+                    self.performSegue(withIdentifier: "loginSegue", sender: nil)
                 }
             }
         }
@@ -50,49 +72,37 @@ class LoginViewController: UIViewController {
     @IBAction func onLoginBtnPress(_ sender: Any) {
         let username = usernameText.text ?? ""
         let password = passwordText.text ?? ""
-        
         /*
          Makes an asynchronous request to log in a user with specified credentials.
          *Returns an instance of the successfully logged in PFUser.
          *This also caches the user locally so that calls to PFUser.currentUser() will use the latest logged in user.
          *@param:  - username: The username of the user.
          - password: The password of the user.
+         
          */
         
         PFUser.logInWithUsername(inBackground: username, password: password) { (user: PFUser?, error: Error?) in
             if let error = error {
-                print("User log in failed: \(error.localizedDescription)")
-                  self.present(self.loginErrorAlertController, animated: true)
-            } else {
+                print("User log in failed: \(error.localizedDescription)");
+                self.present(self.loginErrorAlertController, animated: true);
+                } else {
+                
                 print("User logged in successfully")
                 // display view controller that needs to shown after successful login
-                
                  self.performSegue(withIdentifier: "loginSegue", sender: nil)
             }
         }
         
     }
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-        
-        // create an OK action
-        let OKAction = UIAlertAction(title: "OK", style: .default) { (action) in
-            // handle response here.
+    /*
+        override func viewWillAppear(_ animated: Bool) {
+        // check if user is logged in.
+        if PFUser.current() != nil {
+            // if there is a logged in user then load the home view controller
+            print("Already Logged In!")
+            self.performSegue(withIdentifier: "loginSegue", sender: nil)
         }
-        // add the OK action to the alert controller
-        loginErrorAlertController.addAction(OKAction)
-
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
+    } */
 
     /*
     // MARK: - Navigation

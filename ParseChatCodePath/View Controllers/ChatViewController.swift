@@ -12,9 +12,9 @@ import Parse
 class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     var messages: [PFObject]?
+    var alertController: UIAlertController!
     
     @IBOutlet weak var chatMessageTextField: UITextField!
-    
     @IBOutlet weak var chatTableView: UITableView!
     
     
@@ -24,16 +24,37 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // Store text entered in text field into the object
         chatMessage["text"] = chatMessageTextField.text ?? ""
+        chatMessage["user"] = PFUser.current()
         
-        chatMessage.saveInBackground { (success, error) in
-            if success {
-                print("The message was saved!")
-                self.chatMessageTextField.text = ""
-            } else if let error = error {
-                print("Problem saving message: \(error.localizedDescription)")
+        if(chatMessageTextField.text!.isEmpty){
+            chatMessage.saveInBackground { (success, error) in
+                if success {
+                    print("The message was saved!")
+                    self.chatMessageTextField.text = ""
+                } else if let error = error {
+                    print("Problem saving message: \(error.localizedDescription)")
+                }
+            }
+        }else{
+            alertController = UIAlertController(title: "Message field empty", message: "Please enter a message to send", preferredStyle: .alert)
+            let OKAction = UIAlertAction(title: "OK", style: .cancel) {(action) in }
+            alertController.addAction(OKAction)
+        }
+
+        
+    }
+    
+    
+    @IBAction func onTapLogoutBtn(_ sender: Any) {
+      PFUser.logOutInBackground { (error: Error?) in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                //self.dismiss(animated: true, completion: nil)
+                print("Logout successful")
+                self.performSegue(withIdentifier: "LoginScreen", sender: nil)
             }
         }
-        
     }
     
     override func viewDidLoad() {
@@ -44,9 +65,9 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         chatTableView.dataSource = self;
         
         // Auto size row height based on cell autolayout constraints
-        //tableView.rowHeight = UITableViewAutomaticDimension
+       chatTableView.rowHeight = UITableViewAutomaticDimension
         // Provide an estimated row height. Used for calculating scroll indicator
-        //tableView.estimatedRowHeight = 50
+       chatTableView.estimatedRowHeight = 50
 
         Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.refresh), userInfo: nil, repeats: true) // a refresh function that is run every second.
     }
@@ -60,11 +81,13 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages?.count ?? 0
     }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = chatTableView.dequeueReusableCell(withIdentifier: "ChatCell", for: indexPath) as! ChatCell
         if let messages = messages {
             let message = messages[indexPath.row]
-           cell.chatMessage.text = message["text"] as! String
+            cell.chatMessage.text = message["text"] as? String
+            
             if let user = message["user"] as? PFUser {
                 // User found! update username label with username
                 cell.userNameLabel.text = user.username
